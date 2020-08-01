@@ -1,5 +1,4 @@
 Country,A+,A-,AB+,AB-,B+,B-,O+,O-,confirmed_cases,deaths,case_fatality_per_k,Population,Continent
-All Countries,30,4,5,1,15,1,40,4,188910,7573,38,71300737,NA
 Mauritius,26,1,7,1,25,1,38,2,344,10,13,1267303,Asia
 Malta,41,5,3,1,7,1,38,5,814,9,33,432810,Europe
 Jamaica,23,2,3,1,20,1,47,4,864,10,76,2813316,South America
