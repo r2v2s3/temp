@@ -1,0 +1,221 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<select id="country" onchange="invokeUpdate()">
+  <option value="All Countries">All Countries
+  <option value="Mauritius">Mauritius
+  <option value="Malta">Malta
+  <option value="Jamaica">Jamaica
+  <option value="Cyprus">Cyprus
+  <option value="Latvia">Latvia
+  <option value="New Zealand">New Zealand
+  <option value="Iceland">Iceland
+  <option value="Estonia">Estonia
+  <option value="Lithuania">Lithuania
+  <option value="Slovenia">Slovenia
+  <option value="Slovakia">Slovakia
+  <option value="Cuba">Cuba
+  <option value="Guinea">Guinea
+  <option value="Zimbabwe">Zimbabwe
+  <option value="Thailand">Thailand
+  <option value="Libya">Libya
+  <option value="Lebanon">Lebanon
+  <option value="Greece">Greece
+  <option value="Hungary">Hungary
+  <option value="Croatia">Croatia
+  <option value="Mauritania">Mauritania
+  <option value="Finland">Finland
+  <option value="Malaysia">Malaysia
+  <option value="Norway">Norway
+  <option value="North Macedonia">North Macedonia
+  <option value="Bulgaria">Bulgaria
+  <option value="Bosnia and Herzegovina">Bosnia and Herzegovina
+  <option value="Sudan">Sudan
+  <option value="Denmark">Denmark
+  <option value="El Salvador">El Salvador
+  <option value="Ethiopia">Ethiopia
+  <option value="Australia">Australia
+  <option value="Cameroon">Cameroon
+  <option value="Venezuela">Venezuela
+  <option value="Nepal">Nepal
+  <option value="Austria">Austria
+  <option value="Morocco">Morocco
+  <option value="Moldova">Moldova
+  <option value="Serbia">Serbia
+  <option value="Ireland">Ireland
+  <option value="Switzerland">Switzerland
+  <option value="Ghana">Ghana
+  <option value="Japan">Japan
+  <option value="Armenia">Armenia
+  <option value="Bahrain">Bahrain
+  <option value="Honduras">Honduras
+  <option value="Nigeria">Nigeria
+  <option value="Poland">Poland
+  <option value="Romania">Romania
+  <option value="Portugal">Portugal
+  <option value="Singapore">Singapore
+  <option value="Netherlands">Netherlands
+  <option value="United Arab Emirates">United Arab Emirates
+  <option value="Dominican Republic">Dominican Republic
+  <option value="Belgium">Belgium
+  <option value="Israel">Israel
+  <option value="Ukraine">Ukraine
+  <option value="Bolivia">Bolivia
+  <option value="Sweden">Sweden
+  <option value="Ecuador">Ecuador
+  <option value="Philippines">Philippines
+  <option value="China">China
+  <option value="Kazakhstan">Kazakhstan
+  <option value="Egypt">Egypt
+  <option value="Indonesia">Indonesia
+  <option value="Canada">Canada
+  <option value="Iraq">Iraq
+  <option value="Argentina">Argentina
+  <option value="Germany">Germany
+  <option value="France">France
+  <option value="Turkey">Turkey
+  <option value="Bangladesh">Bangladesh
+  <option value="Italy">Italy
+  <option value="Saudi Arabia">Saudi Arabia
+  <option value="Colombia">Colombia
+  <option value="Pakistan">Pakistan
+  <option value="Spain">Spain
+  <option value="Iran">Iran
+  <option value="United Kingdom">United Kingdom
+  <option value="Chile">Chile
+  <option value="Peru">Peru
+  <option value="Mexico">Mexico
+  <option value="South Africa">South Africa
+  <option value="Russia">Russia
+  <option value="India">India
+  <option value="Brazil">Brazil
+  <option value="US">US
+</select>
+
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+
+<script>
+
+  function invokeUpdate() {
+    var value = document.getElementById("country").value;
+    update(value);
+  }
+
+  var selectedButton;
+
+  // set the dimensions and margins of the graph
+  var margin = { top: 30, right: 30, bottom: 70, left: 40 },
+    width = 1000 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+
+
+  // Initialize the X axis
+  var x = d3.scaleBand()
+    .range([0, width])
+    .padding(0.2);
+  var xAxis = svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+
+
+  // Initialize the Y axis
+  var y = d3.scaleLinear()
+    .range([height, 0]);
+  var yAxis = svg.append("g")
+    .attr("class", "myYaxis")
+
+
+  // ----------------
+  // Create a tooltip
+  // ----------------
+  var tooltip = d3.select("#my_dataviz")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "5px")
+
+  // Three function that change the tooltip when user hover / move / leave a cell
+  var mouseover = function (d) {
+    //var subgroupName = d3.select(this.parentNode).datum().key;
+
+    var subgroupValue = d[selectedButton];
+    tooltip
+      .html("Value: " + subgroupValue)
+      .style("opacity", 1)
+  }
+  var mousemove = function (d) {
+    tooltip
+      .style("left", (d3.mouse(this)[0] + 90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+      .style("top", (d3.mouse(this)[1]) + "px")
+  }
+  var mouseleave = function (d) {
+    tooltip
+      .style("opacity", 0)
+  }
+
+
+  // A function that create / update the plot for a given variable:
+  function update(selectedVar) {
+
+    selectedButton = selectedVar;
+
+    // Parse the Data
+    d3.csv("https://raw.githubusercontent.com/r2v2s3/temp/master/bar_dataset3.csv", function (data) {
+
+      // X axis
+      x.domain(data.map(function (d) { return d.Group; }))
+      xAxis.transition().duration(1000).call(d3.axisBottom(x)).selectAll("text")
+
+
+      // Add Y axis
+      y.domain([0, d3.max(data, function (d) { return +d[selectedVar] })]);
+      yAxis.transition().duration(1000).call(d3.axisLeft(y));
+
+      // variable u: map data to existing bars
+      var u = svg.selectAll("rect")
+        .data(data)
+
+      // update bars
+      u
+        .enter()
+        .append("rect")
+
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+
+        .merge(u)
+        .transition()
+        .duration(1000)
+        .attr("x", function (d) { return x(d.Group); })
+        .attr("y", function (d) { return y(d[selectedVar]); })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) { return height - y(d[selectedVar]); })
+        .attr("fill", "#377eb8")
+    })
+
+  }
+
+  // Initialize plot
+  update('All Countries')
+
+</script>
